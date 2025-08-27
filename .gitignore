@@ -1,0 +1,13 @@
+# Ignorar virtualenvs
+venv/
+env/
+
+# Ignorar caches do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Arquivos de configuração locais
+*.env
+.env/
