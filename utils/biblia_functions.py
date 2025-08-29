@@ -13,7 +13,6 @@ class BibliaFunctions:
     def carregar_biblia(self):
         # Verifica se a coleção já existe
         if self.collection_name in [c.name for c in self.client.list_collections()]:
-            print(f"📖 Coleção '{self.collection_name}' já existe. Pulando criação.")
             self.collection = self.client.get_collection(self.collection_name)
             return
 

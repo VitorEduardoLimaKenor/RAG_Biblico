@@ -2,7 +2,6 @@ from langchain.prompts import PromptTemplate
 
 # ------------------ llm settings ------------------ #
 
-MODEL="deepseek-r1-distill-llama-70b"
 TEMPERATURE=1
 
 # ------------------ RAG settings ------------------ #
