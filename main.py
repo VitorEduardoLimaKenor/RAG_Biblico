@@ -87,3 +87,12 @@ if user_input:
     with resposta_container.container():
         st.markdown(f'<div class="chat-box"><span class="user">Você:</span> {user_input}</div>', unsafe_allow_html=True)
         st.markdown(f'<div class="chat-box"><span class="bot">Bíblia ({versao_escolhida}):</span> {response}</div>', unsafe_allow_html=True)
+
+        # Download em TXT
+        txt_content = f"# Pergunta\n{user_input}\n\n# Resposta\n{response}"
+        st.download_button(
+            label="Baixar Resposta",
+            data=txt_content,
+            file_name="resposta.txt",
+            mime="text/plain"
+        )
