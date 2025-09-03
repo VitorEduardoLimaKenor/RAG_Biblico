@@ -2,6 +2,10 @@
 venv/
 env/
 
+# Ignorar banco de dados SQLite
+src/data/chroma_db/chroma.sqlite3
+src/data/chroma_db/
+
 # Ignorar caches do Python
 __pycache__/
 *.pyc
