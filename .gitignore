@@ -8,6 +8,10 @@ __pycache__/
 *.pyo
 *.pyd
 
+# Ignorar banco de dados SQLite
+src/data/chroma_db/chroma.sqlite3
+src/data/chroma_db/
+
 # Arquivos de configuração locais
 *.env
 .env/
