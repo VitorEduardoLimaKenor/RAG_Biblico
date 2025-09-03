@@ -1,14 +1,12 @@
 import streamlit as st
-from agents.biblia_agent import Agent
+from src.biblia_agent import Agent
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Opções de versões da Bíblia
-versoes = {
-    "Ave Maria": "./settings/bibliaAveMaria_settings.py",
-    "King James": "./settings/bibliaKingJames_settings.py"
-}
+# Só existe a versão Ave Maria
+versao_escolhida = "Ave Maria"
+settings_path = "./src/bibliaAveMaria_settings.py"
 
 models = {
     "gpt-oss-20b": "openai/gpt-oss-20b",
@@ -61,17 +59,16 @@ st.markdown(
 # Título e descrição
 st.markdown('<div class="title">ScriptureMind</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="description">O ScriptureMind é um sistema de estudo bíblico com busca inteligente de versículos e reflexões.<br><br><i>Autor: Vitor Eduardo de Lima Kenor</i></div>',
+    '<div class="description">O ScriptureMind é um sistema de estudo bíblico com busca inteligente de versículos e reflexões.<br><br><i>Autor: Vitor Eduardo de Lima Kenor</i><br><br><b>Versão utilizada: Bíblia Ave Maria</b></div>',
     unsafe_allow_html=True
 )
 
-# Barra lateral para escolher versão
-versao_escolhida = st.sidebar.selectbox("Escolha a versão da Bíblia:", list(versoes.keys()))
+# Barra lateral para escolher modelo de linguagem
 modelo_escolhido = st.sidebar.selectbox("Escolha o modelo de linguagem:", list(models.keys()))
 
 # Criar ou atualizar agente conforme a versão
 if "biblia_agent" not in st.session_state or st.session_state.get("versao_atual") != versao_escolhida:
-    st.session_state.biblia_agent = Agent(settings_path=versoes[versao_escolhida], model=models[modelo_escolhido])
+    st.session_state.biblia_agent = Agent(settings_path=settings_path, model=models[modelo_escolhido])
     st.session_state.versao_atual = versao_escolhida
 
 # Inicializa o espaço da resposta
