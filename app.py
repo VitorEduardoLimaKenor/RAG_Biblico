@@ -1,18 +1,12 @@
 import streamlit as st
-from src.biblia_agent import Agent
+import time
+from src.biblia_agent import BibliaAgent
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # Só existe a versão Ave Maria
 versao_escolhida = "Ave Maria"
-settings_path = "./src/bibliaAveMaria_settings.py"
-
-models = {
-    "gpt-oss-20b": "openai/gpt-oss-20b",
-    "qwen3-32b": "qwen/qwen3-32b",
-    "llama-3.3-70b-versatile": "llama-3.3-70b-versatile"
-}
 
 st.set_page_config(page_title="ScriptureMind", page_icon="📖")
 
@@ -51,6 +45,14 @@ st.markdown(
             color: #ffd700;
             font-weight: bold;
         }
+        .loading {
+            background-color: #333;
+            color: #aaa;
+            font-style: italic;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
     </style>
     """,
     unsafe_allow_html=True
@@ -63,12 +65,9 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Barra lateral para escolher modelo de linguagem
-modelo_escolhido = st.sidebar.selectbox("Escolha o modelo de linguagem:", list(models.keys()))
-
 # Criar ou atualizar agente conforme a versão
 if "biblia_agent" not in st.session_state or st.session_state.get("versao_atual") != versao_escolhida:
-    st.session_state.biblia_agent = Agent(settings_path=settings_path, model=models[modelo_escolhido])
+    st.session_state.biblia_agent = BibliaAgent()
     st.session_state.versao_atual = versao_escolhida
 
 # Inicializa o espaço da resposta
@@ -78,12 +77,28 @@ resposta_container = st.empty()
 user_input = st.chat_input("Digite sua pergunta...")
 
 if user_input:
+    # Balão de carregamento
+    loading_placeholder = resposta_container.container()
+    with loading_placeholder:
+        msg = st.markdown('<div class="loading">⏳ O agente está buscando em suas ferramentas...</div>', unsafe_allow_html=True)
+
+    # Simula animação com diferentes mensagens
+    loading_msgs = [
+        "🔍 Buscando versículos relacionados...",
+        "📚 Consultando contexto bíblico...",
+        "🧩 Montando a resposta final..."
+    ]
+    for step in loading_msgs:
+        time.sleep(1.5)
+        loading_placeholder.markdown(f'<div class="loading">{step}</div>', unsafe_allow_html=True)
+
+    # Chama o agente
     response = st.session_state.biblia_agent.ask(user_input)
 
-    # Exibe a resposta acima, estilo chat
+    # Substitui o balão pela resposta final
     with resposta_container.container():
         st.markdown(f'<div class="chat-box"><span class="user">Você:</span> {user_input}</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="chat-box"><span class="bot">Bíblia ({versao_escolhida}):</span> {response}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="chat-box"><span class="bot">Bíblia (Ave Maria):</span> {response}</div>', unsafe_allow_html=True)
 
         # Download em TXT
         txt_content = f"# Pergunta\n{user_input}\n\n# Resposta\n{response}"
