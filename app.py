@@ -1,110 +1,205 @@
 import streamlit as st
-import time
-from src.biblia_agent import BibliaAgent
 from dotenv import load_dotenv
+import logging
+import os
 
-load_dotenv()
+# Importa as ferramentas para apresentar 
+from src.tools import (
+    buscar_na_biblia_json,
+    buscar_dicionario_easton,
+    buscar_naves_topical,
+    buscar_versiculos_semantica
+)
 
-# Só existe a versão Ave Maria
-versao_escolhida = "Ave Maria"
+# Importa o agente do projeto
+from src.biblia_agent import BibliaAgent
 
-st.set_page_config(page_title="ScriptureMind", page_icon="📖")
+# Configuração de página (precisa vir antes de qualquer output)
+st.set_page_config(
+    page_title="Projeto RAG Bíblico",
+    page_icon="✝️",
+    layout="wide"
+)
 
-# Estilo customizado
+# CSS para deixar o layout mais espaçoso e menos centralizado
 st.markdown(
     """
     <style>
-        body {
-            background-color: black;
-        }
-        .title {
-            color: white;
-            text-align: center;
-            font-size: 36px;
-            font-weight: bold;
-        }
-        .description {
-            color: #d9d9d9;
-            text-align: center;
-            font-size: 18px;
-            margin-bottom: 30px;
-        }
-        .chat-box {
-            background-color: #1e1e1e;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            color: #f5f5f5;
-            font-size: 16px;
-        }
-        .user {
-            color: #4da6ff;
-            font-weight: bold;
-        }
-        .bot {
-            color: #ffd700;
-            font-weight: bold;
-        }
-        .loading {
-            background-color: #333;
-            color: #aaa;
-            font-style: italic;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
+    .block-container {max-width: 1400px; padding-top: 2rem; padding-bottom: 3rem;}
+    .stTabs [data-baseweb="tab-list"] {gap: 12px;}
+    .stTabs [data-baseweb="tab"] {padding: 10px 16px;}
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
-# Título e descrição
-st.markdown('<div class="title">ScriptureMind</div>', unsafe_allow_html=True)
-st.markdown(
-    '<div class="description">O ScriptureMind é um sistema de estudo bíblico com busca inteligente de versículos e reflexões.<br><br><i>Autor: Vitor Eduardo de Lima Kenor</i><br><br><b>Versão utilizada: Bíblia Ave Maria</b></div>',
-    unsafe_allow_html=True
-)
+# ------------------------- Cabeçalho ------------------------- #
+st.title("✝️ Projeto RAG Bíblico ✝️")
+st.caption("Ferramenta interativa para estudo e pesquisa bíblica, combinando inteligência artificial com dados históricos e textuais da Bíblia.")
+st.caption("Desenvolvido por: Vitor Eduardo de Lima Kenor")
 
-# Criar ou atualizar agente conforme a versão
-if "biblia_agent" not in st.session_state or st.session_state.get("versao_atual") != versao_escolhida:
-    st.session_state.biblia_agent = BibliaAgent()
-    st.session_state.versao_atual = versao_escolhida
+# ------------------------- Configuração básica ------------------------- #
 
-# Inicializa o espaço da resposta
-resposta_container = st.empty()
+load_dotenv()
 
-# Caixa de input estilo ChatGPT
-user_input = st.chat_input("Digite sua pergunta...")
+# Configuração centralizada de logging
+level_name = os.getenv("LOG_LEVEL", "INFO").upper()
+level = getattr(logging, level_name, logging.INFO)
 
-if user_input:
-    # Balão de carregamento
-    loading_placeholder = resposta_container.container()
-    with loading_placeholder:
-        msg = st.markdown('<div class="loading">⏳ O agente está buscando em suas ferramentas...</div>', unsafe_allow_html=True)
+# Garante que exista um handler de console para o root logger (sem duplicar)
+root_logger = logging.getLogger()
+if not root_logger.handlers:
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter(
+        fmt="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+        datefmt="%H:%M:%S"
+    ))
+    root_logger.addHandler(console_handler)
 
-    # Simula animação com diferentes mensagens
-    loading_msgs = [
-        "🔍 Buscando versículos relacionados...",
-        "📚 Consultando contexto bíblico...",
-        "🧩 Montando a resposta final..."
-    ]
-    for step in loading_msgs:
-        time.sleep(1.5)
-        loading_placeholder.markdown(f'<div class="loading">{step}</div>', unsafe_allow_html=True)
+# Ajusta o nível do root logger conforme variável de ambiente
+root_logger.setLevel(level)
 
-    # Chama o agente
-    response = st.session_state.biblia_agent.ask(user_input)
+# Captura warnings do módulo warnings no logging
+logging.captureWarnings(True)
 
-    # Substitui o balão pela resposta final
-    with resposta_container.container():
-        st.markdown(f'<div class="chat-box"><span class="user">Você:</span> {user_input}</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="chat-box"><span class="bot">Bíblia (Ave Maria):</span> {response}</div>', unsafe_allow_html=True)
+# Handler de logging para exibir logs em tempo real no Streamlit durante a inicialização
+class StreamlitLogHandler(logging.Handler):
+    def __init__(self, placeholder: "st.delta_generator.DeltaGenerator"):
+        super().__init__()
+        self.placeholder = placeholder
+        self.logs = []
+        self.setFormatter(logging.Formatter(
+            fmt="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+            datefmt="%H:%M:%S"
+        ))
 
-        # Download em TXT
-        txt_content = f"# Pergunta\n{user_input}\n\n# Resposta\n{response}"
-        st.download_button(
-            label="Baixar Resposta",
-            data=txt_content,
-            file_name="resposta.txt",
-            mime="text/plain"
-        )
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            msg = self.format(record)
+            self.logs.append(msg)
+            # Mantém apenas as últimas 300 linhas para evitar crescer indefinidamente
+            if len(self.logs) > 300:
+                self.logs = self.logs[-300:]
+            self.placeholder.code("\n".join(self.logs), language="text")
+        except Exception:
+            # Não deixa o logging quebrar o app
+            pass
+
+# Garante uma única instância do agente por sessão do usuário e mostra tela de carregamento com logs
+if "agent" not in st.session_state:
+    loading_container = st.container()
+    with loading_container:
+        log_area = st.empty()
+        handler = StreamlitLogHandler(log_area)
+        root_logger.addHandler(handler)
+
+        try:
+            with st.spinner("Carregando recursos (ChromaDB, embeddings, coleções)..."):
+                # A criação do agente deverá emitir logs que aparecerão acima em tempo real
+                st.session_state.agent = BibliaAgent()
+        except Exception as e:
+            st.error(f"Falha na inicialização: {e}")
+        finally:
+            # Remove o handler para evitar logs duplicados após a inicialização
+            root_logger.removeHandler(handler)
+            # Limpa a área de logs e o container de carregamento
+            try:
+                log_area.empty()
+            except Exception:
+                pass
+            loading_container.empty()
+
+agent = st.session_state.get("agent")
+if agent is None:
+    st.stop()
+
+# ------------------------- Abas ------------------------- #
+tabs = st.tabs([
+    "Agente Bíblico",
+    "Leitura por capítulo",
+    "Tool de busca no Dicionário Easton",
+    "Tool de busca semântica no Naves Topical",
+    "Tool de busca semântica na Bíblia"
+])
+
+# ------------------------- Aba 1: Pergunte ao Agente ------------------------- #
+with tabs[0]:
+    st.subheader("Pergunte algo relacionado à Bíblia")
+    question = st.text_area("Sua pergunta", placeholder="Ex.: O que a Bíblia ensina sobre perdão?", height=120)
+    ask_clicked = st.button("Perguntar", type="primary", use_container_width=True)
+
+    if ask_clicked:
+        with st.spinner("Consultando o agente..."):
+            try:
+                answer = agent.ask(question)
+                st.markdown("**Resposta:**")
+                st.write(answer)
+            except Exception as e:
+                st.error(f"Erro ao consultar o agente: {e}")
+
+# ------------------------- Aba 2: Leitura por Capítulo ------------------------- #
+with tabs[1]:
+    st.subheader("Leitura direta por capítulo")
+    livro = st.text_input("Livro (nome ou abreviação)", placeholder="Ex.: Gênesis")
+    cap = st.number_input("Capítulo", min_value=1, value=1, step=1)
+    ler_clicked = st.button("Ler capítulo", use_container_width=True)
+
+    if ler_clicked:
+        with st.spinner("Carregando capítulo..."):
+            try:
+                result = buscar_na_biblia_json(f"{livro}:{cap}")
+                if not result:
+                    st.warning("Não encontrado. Verifique o nome do livro e o capítulo.")
+                else:
+                    st.markdown(f"### {result['referencia']}")
+                    for v in result["versiculos"]:
+                        st.markdown(f"**{v['versiculo']}**. {v['texto']}")
+            except Exception as e:
+                st.error(f"Erro ao ler capítulo: {e}")
+
+# ------------------------- Aba 3: Dicionário Easton ------------------------- #
+with tabs[2]:
+    st.subheader("Consulta ao Dicionário Bíblico de Easton")
+    easton_query = st.text_input("Termo para buscar", placeholder="Ex.: Jesus, fariseus, Jerusalém")
+    easton_clicked = st.button("Buscar no Easton", use_container_width=True)
+
+    if easton_clicked:
+        with st.spinner("Buscando no Easton..."):
+            try:
+                res = buscar_dicionario_easton(easton_query)
+                st.code(res)
+            except Exception as e:
+                st.error(f"Erro ao buscar no Easton: {e}")
+
+# ------------------------- Aba 4: Naves Topical ------------------------- #
+with tabs[3]:
+    st.subheader("Temas bíblicos (em inglês)")
+    st.caption("A coleção está indexada em inglês. Exemplos: faith, love, forgiveness, hope, obedience.")
+    topic_query = st.text_input("Tema (em inglês)", placeholder="Ex.: forgiveness")
+    naves_clicked = st.button("Buscar Tema", use_container_width=True)
+
+    if naves_clicked:
+        with st.spinner("Buscando temas..."):
+            try:
+                res = buscar_naves_topical(topic_query)
+                st.code(res)
+            except Exception as e:
+                st.error(f"Erro ao buscar temas: {e}")
+
+# ------------------------- Aba 5: Busca Semântica ------------------------- #
+with tabs[4]:
+    st.subheader("Tool de Busca Semântica")
+    semantica_query = st.text_input("Termo para buscar", placeholder="Ex.: perdão")
+    semantica_clicked = st.button("Buscar semântica", use_container_width=True)
+
+    if semantica_clicked:
+        with st.spinner("Buscando semântica..."):
+            try:
+                res = buscar_versiculos_semantica(semantica_query)
+                st.code(res)
+            except Exception as e:
+                st.error(f"Erro ao buscar semântica: {e}")
+
+# ------------------------- Rodapé ------------------------- #
+st.divider()
+st.caption("Modelo de linguagem: llama-3.3-70b-versatile")
