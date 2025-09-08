@@ -1,6 +1,6 @@
 # Projeto RAG Bíblico
 
-<img src="https://github.com/VitorEduardoLimaKenor/RAG_Biblico/blob/main/imgs/biblia_aberta.jpg" alt="Diagrama do sistema" width="500">
+<img src="imgs/biblia_aberta.jpg" alt="Diagrama do sistema" width="500">
 
 **RAG_biblico** é um projeto de **Question Answering Bíblico** que combina **Recuperação e Geração de Respostas (RAG)** usando inteligência artificial.
 
@@ -42,6 +42,28 @@ RAG_Bíblico/
 ├── app.py                      # Interface do usuário construída com Streamlit
 └── requirements.txt            # Dependências Python do projeto
 ```
+## Arquitetura do agente (Diagrama)
+
+<img src="imgs/diagram_projeto_rag_biblico.png" alt="Diagrama da arquitetura do agente" width="900">
+
+### Como funciona
+
+1. O usuário interage pela interface em `app.py` (Streamlit), enviando uma pergunta em linguagem natural.
+2. O agente (`BibliaAgent` em `src/biblia_agent.py`) orquestra o fluxo no estilo ReAct: decide quais ferramentas consultar e em que ordem, e chama o LLM para raciocinar e compor a resposta final.
+3. As ferramentas disponíveis (`src/tools.py`) incluem:
+   - Pesquisa na Bíblia (JSON `data/bibliaAveMaria.json`).
+   - Consulta ao Dicionário de Easton (JSON `data/dicionario_easton.json`).
+   - Busca semântica na Bíblia e no Naves por meio do ChromaDB.
+4. Um processo de embeddings (Sentence-Transformers) popula as coleções vetoriais do ChromaDB:
+   - `biblia_ave_maria` (versículos)
+   - `naves_topical` (tópicos/entradas)
+5. Durante a pergunta, o agente combina:
+   - Recuperação lexical (JSONs) e vetorial (ChromaDB) para coletar passagens e tópicos relevantes.
+   - Raciocínio do LLM (`llama-3.3-70b-versatile` via Groq) para sintetizar uma resposta contextualizada e coerente.
+6. A resposta é retornada ao Streamlit, podendo incluir trechos e referências dos textos consultados.
+
+> Em caso de primeira execução ou atualização dos dados, o agente verifica/cria as coleções no ChromaDB (ver utilitários em `src/chromadb_utils.py`).
+
 ## Requisitos
 
 - Python 3.12.0
