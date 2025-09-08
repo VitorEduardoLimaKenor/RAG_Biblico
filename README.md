@@ -26,6 +26,8 @@ RAG_Bíblico/
 │   ├── tools.py                 # Funções de busca (Bíblia JSON, Easton, Naves, Semântica)
 │   └── system_prompts.py        # Prompts utilizados pelo modelo de linguagem
 │
+├── imgs/                        # Imagens utilizadas no README.md  
+│
 ├── data/                        # Dados em arquivos JSON
 │   ├── bibliaAveMaria.json      # Bíblia em formato JSON
 │   ├── dicionario_easton.json   # Dicionário Bíblico Easton em formato JSON
