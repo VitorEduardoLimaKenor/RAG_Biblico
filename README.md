@@ -44,7 +44,7 @@ RAG_Bíblico/
 ```
 ## Arquitetura do agente (Diagrama)
 
-<img src="imgs/diagram_projeto_rag_biblico.png" alt="Diagrama da arquitetura do agente" width="900">
+<img src="imgs/diagram_projeto_rag_biblico.png" alt="Diagrama da arquitetura do agente" width="1000">
 
 ### Como funciona
 
