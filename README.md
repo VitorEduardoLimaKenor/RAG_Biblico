@@ -15,7 +15,6 @@ O projeto integra um ***modelo de linguagem*** para analisar a pergunta, selecio
 
 **Objetivo:** fornecer uma ferramenta interativa para estudo e pesquisa bíblica, combinando inteligência artificial com dados históricos e textuais da Bíblia.
 
----
 ## Estrutura do Projeto
 
 O projeto está organizado de forma simples e modular, facilitando manutenção, leitura e escalabilidade:
