@@ -1,6 +1,6 @@
 # Projeto RAG Bíblico
 
-<img src="imgs/biblia_aberta.jpg" alt="Diagrama do sistema" width="500">
+<img src="imgs/biblia_aberta.jpg" alt="Imagem da Bíblia Aberta" width="500">
 
 **RAG_biblico** é um projeto de **Question Answering Bíblico** que combina **Recuperação e Geração de Respostas (RAG)** usando inteligência artificial.
 
@@ -43,7 +43,7 @@ RAG_Bíblico/
 ```
 ## Arquitetura do agente (Diagrama)
 
-<img src="imgs/diagram_projeto_rag_biblico.png" alt="Diagrama da arquitetura do agente" width="1000">
+<img src="imgs/diagram_projeto_rag_biblico.png" alt="Diagrama da Arquitetura do Agente" width="1000">
 
 ### Como funciona
 
@@ -95,6 +95,8 @@ streamlit run app.py
 Abra o link exibido no terminal (geralmente `http://localhost:8501`).
 
 ## Como usar (Abas da interface)
+
+<img src="imgs/interface.png" alt="Imagem da Interface" width="900">
 
 - Agente Bíblico
   - Escreva uma pergunta em linguagem natural (ex.: "O que a Bíblia ensina sobre perdão?") e clique em "Perguntar". O agente utiliza RAG para compor uma resposta contextualizada.
