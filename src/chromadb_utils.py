@@ -20,11 +20,9 @@ class ChromaDB:
     def __init__(self):
         logger.info("Inicializando ChromaDB")
         self.client = chromadb.PersistentClient(path="./data/chroma_db")
-        self.biblia_path = "./data/bibliaAveMaria.json"
-        self.naves_path = "./data/naves_topical.json"
+        self.biblia_path = "./data/biblia_ave_maria.json"
         self.embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
         self.functiom_embedder = LangchainEmbeddingFunction(self.embedding)
-
 
     def load_json(self, filepath: str):
         logger.info(f"Carregando JSON: {filepath}")
@@ -113,29 +111,7 @@ class ChromaDB:
         else:
             logger.info(f"Coleção '{collection_name}' já está atualizada")
 
-        # ---------------- NAVES TOPICAL ----------------
-        logger.info("Processando coleção Naves Topical")
-        naves = self.load_json(self.naves_path)
-        docs, ids, metadatas = [], [], []
-        for i, item in enumerate(naves):
-            topic = item["topic"]
-            referencias = "; ".join(item["versiculos"])
-            docs.append(referencias)
-            ids.append(f"{topic}_{i}")
-            metadatas.append({"topic": topic})
-
-        collection_name = "naves_topical"
-        collection = self._get_collection(collection_name)
-        if len(collection.get()["ids"]) != len(ids):
-            logger.info(f"Atualizando coleção '{collection_name}'")
-            self.client.delete_collection(collection_name)
-            collection = self._get_collection(collection_name)
-            self._add_in_batches(collection_name, docs, ids, metadatas)
-        else:
-            logger.info(f"Coleção '{collection_name}' já está atualizada")
-
         logger.info("Todas as coleções foram processadas com sucesso")
         return {
-            "biblia": self._get_collection("biblia_ave_maria"),
-            "naves": self._get_collection("naves_topical"),
+            "biblia": self._get_collection("biblia_ave_maria")
         }

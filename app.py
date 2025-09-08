@@ -7,12 +7,11 @@ import os
 from src.tools import (
     buscar_na_biblia_json,
     buscar_dicionario_easton,
-    buscar_naves_topical,
     buscar_versiculos_semantica
 )
 
 # Importa o agente do projeto
-from src.biblia_agent import BibliaAgent
+from src.biblia_agent import BibliaAgent, APIRateLimitError
 
 # Configuração de página (precisa vir antes de qualquer output)
 st.set_page_config(
@@ -118,7 +117,6 @@ tabs = st.tabs([
     "Agente Bíblico",
     "Leitura por capítulo",
     "Tool de busca no Dicionário Easton",
-    "Tool de busca semântica no Naves Topical",
     "Tool de busca semântica na Bíblia"
 ])
 
@@ -134,6 +132,12 @@ with tabs[0]:
                 answer = agent.ask(question)
                 st.markdown("**Resposta:**")
                 st.write(answer)
+            except APIRateLimitError as e:
+                # Mensagem específica para rate limit com indicação de quando tentar novamente
+                if getattr(e, "retry_text", None):
+                    st.error(f"Limite de chamadas da API atingido. Tente novamente em {e.retry_text}.")
+                else:
+                    st.error("Limite de chamadas da API atingido. Tente novamente em breve.")
             except Exception as e:
                 st.error(f"Erro ao consultar o agente: {e}")
 
@@ -171,23 +175,8 @@ with tabs[2]:
             except Exception as e:
                 st.error(f"Erro ao buscar no Easton: {e}")
 
-# ------------------------- Aba 4: Naves Topical ------------------------- #
+# ------------------------- Aba 4: Busca Semântica ------------------------- #
 with tabs[3]:
-    st.subheader("Temas bíblicos (em inglês)")
-    st.caption("A coleção está indexada em inglês. Exemplos: faith, love, forgiveness, hope, obedience.")
-    topic_query = st.text_input("Tema (em inglês)", placeholder="Ex.: forgiveness")
-    naves_clicked = st.button("Buscar Tema", use_container_width=True)
-
-    if naves_clicked:
-        with st.spinner("Buscando temas..."):
-            try:
-                res = buscar_naves_topical(topic_query)
-                st.code(res)
-            except Exception as e:
-                st.error(f"Erro ao buscar temas: {e}")
-
-# ------------------------- Aba 5: Busca Semântica ------------------------- #
-with tabs[4]:
     st.subheader("Tool de Busca Semântica")
     semantica_query = st.text_input("Termo para buscar", placeholder="Ex.: perdão")
     semantica_clicked = st.button("Buscar semântica", use_container_width=True)

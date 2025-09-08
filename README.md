@@ -8,7 +8,6 @@ Ele permite que usuários façam perguntas em linguagem natural sobre a Bíblia,
 
 - Busca semântica em versículos bíblicos (ChromaDB)
 - Consultas ao Dicionário Bíblico de Easton para contexto histórico e cultural
-- Tópicos bíblicos organizados (Naves)
 - Acesso direto à Bíblia estruturada em JSON
 
 O projeto integra um ***modelo de linguagem*** para analisar a pergunta, selecionar a melhor fonte de informação e gerar uma resposta precisa, exibida através de uma ***interface web simples em Streamlit***.
@@ -24,15 +23,14 @@ RAG_Bíblico/
 ├── src/                         # Código principal do projeto
 │   ├── biblia_agent.py          # Classe BibliaAgent: lógica de busca e análise de perguntas bíblicas
 │   ├── chromadb_utils.py        # Utilitários para o banco de dados vetorial ChromaDB
-│   ├── tools.py                 # Funções de busca (Bíblia JSON, Easton, Naves, Semântica)
+│   ├── tools.py                 # Funções de busca (Bíblia JSON, Easton, Semântica)
 │   └── system_prompts.py        # Prompts utilizados pelo modelo de linguagem
 │
 ├── imgs/                        # Imagens utilizadas no README.md  
 │
 ├── data/                        # Dados em arquivos JSON
-│   ├── bibliaAveMaria.json      # Bíblia em formato JSON
-│   ├── dicionario_easton.json   # Dicionário Bíblico Easton em formato JSON
-│   └── naves_topical.json       # Nave's Topical Bible em formato JSON
+│   ├── biblia_ave_maria.json    # Bíblia em formato JSON
+│   └── dicionario_easton.json   # Dicionário Bíblico Easton em formato JSON
 │
 ├── .env.example                # Exemplo de variáveis de ambiente
 ├── .gitignore                  # Arquivos e pastas ignoradas pelo Git
@@ -50,12 +48,11 @@ RAG_Bíblico/
 1. O usuário interage pela interface em `app.py` (Streamlit), enviando uma pergunta em linguagem natural.
 2. O agente (`BibliaAgent` em `src/biblia_agent.py`) orquestra o fluxo no estilo ReAct: decide quais ferramentas consultar e em que ordem, e chama o LLM para raciocinar e compor a resposta final.
 3. As ferramentas disponíveis (`src/tools.py`) incluem:
-   - Pesquisa na Bíblia (JSON `data/bibliaAveMaria.json`).
+   - Pesquisa na Bíblia (JSON `data/biblia_ave_maria.json`).
    - Consulta ao Dicionário de Easton (JSON `data/dicionario_easton.json`).
-   - Busca semântica na Bíblia e no Naves por meio do ChromaDB.
+   - Busca semântica na Bíblia por meio do ChromaDB.
 4. Um processo de embeddings (Sentence-Transformers) popula as coleções vetoriais do ChromaDB:
    - `biblia_ave_maria` (versículos)
-   - `naves_topical` (tópicos/entradas)
 5. Durante a pergunta, o agente combina:
    - Recuperação lexical (JSONs) e vetorial (ChromaDB) para coletar passagens e tópicos relevantes.
    - Raciocínio do LLM (`llama-3.3-70b-versatile` via Groq) para sintetizar uma resposta contextualizada e coerente.
@@ -106,9 +103,6 @@ Abra o link exibido no terminal (geralmente `http://localhost:8501`).
 
 - Tool de busca no Dicionário Easton
   - Forneça um termo (ex.: "Jesus", "fariseus") para obter a explicação histórica/cultural do Dicionário de Easton.
-
-- Tool de busca semântica no Naves Topical
-  - Digite um tema em inglês (ex.: "forgiveness", "faith"). As entradas e passagens relacionadas (em inglês) serão mostradas.
 
 - Tool de busca semântica na Bíblia
   - Busque termos (ex.: "perdão") e veja versículos semanticamente relacionados.

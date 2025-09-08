@@ -25,7 +25,7 @@ def buscar_na_biblia_json(arg: str):
     Retorna todos os versículos do capítulo solicitado.
     """
     logger.info("buscar_na_biblia_json chamado com arg=%s", arg)
-    with open("./data/bibliaAveMaria.json", "r", encoding="utf-8") as f:
+    with open("./data/biblia_ave_maria.json", "r", encoding="utf-8") as f:
         biblia = json.load(f)
 
     try:
@@ -52,29 +52,6 @@ def buscar_na_biblia_json(arg: str):
                             "versiculos": cap.get("versiculos", [])
                         }
     return None
-
-@tool
-def buscar_naves_topical(arg1: str) -> str:
-    """
-    Realiza busca por tópicos bíblicos no arquivo Naves (temas como fé, amor, perdão, obediência).
-    """
-    logger.info("buscar_naves_topical chamado com query=%s", arg1)
-    client = chromadb.PersistentClient(path="./data/chroma_db")
-    collection = client.get_collection("naves_topical")
-
-    results = collection.query(
-        query_texts=[arg1],
-        n_results=3
-    )
-
-    documentos = results["documents"][0]
-    metadados = results["metadatas"][0]
-
-    serialized = "\n\n".join(
-        f"Tópico: {meta['topic']}\nTexto: {doc}"
-        for doc, meta in zip(documentos, metadados)
-    )
-    return serialized
 
 @tool
 def buscar_dicionario_easton(query: str) -> str:
