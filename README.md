@@ -1,5 +1,7 @@
 # Projeto RAG Bíblico
 
+<img src="https://github.com/VitorEduardoLimaKenor/RAG_Biblico/blob/main/imgs/biblia_aberta.jpg" alt="Diagrama do sistema" width="500">
+
 **RAG_biblico** é um projeto de **Question Answering Bíblico** que combina **Recuperação e Geração de Respostas (RAG)** usando inteligência artificial.
 
 Ele permite que usuários façam perguntas em linguagem natural sobre a Bíblia, e o sistema responde de forma contextualizada utilizando:
