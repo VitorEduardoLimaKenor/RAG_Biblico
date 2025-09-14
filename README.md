@@ -55,7 +55,7 @@ RAG_Bíblico/
    - `biblia_ave_maria` (versículos)
 5. Durante a pergunta, o agente combina:
    - Recuperação lexical (JSONs) e vetorial (ChromaDB) para coletar passagens e tópicos relevantes.
-   - Raciocínio do LLM (`llama-3.3-70b-versatile` via Groq) para sintetizar uma resposta contextualizada e coerente.
+   - Raciocínio do LLM (`gpt-4o-mini` via API da OpenAI) para sintetizar uma resposta contextualizada e coerente.
 6. A resposta é retornada ao Streamlit, podendo incluir trechos e referências dos textos consultados.
 
 > Em caso de primeira execução ou atualização dos dados, o agente verifica/cria as coleções no ChromaDB (ver utilitários em `src/chromadb_utils.py`).
@@ -64,7 +64,7 @@ RAG_Bíblico/
 
 - Python 3.12.0
 - Pip (ou uv/pipx, opcional)
-- Conta e chave de API da Groq (para uso do modelo LLM)
+- Conta e chave de API da OpenAI (para uso do modelo LLM)
 
 ## Instalação
 
@@ -79,8 +79,8 @@ RAG_Bíblico/
 Copie `.env.example` para `.env` e defina as variáveis necessárias:
 
 ```env
-# Chave da API Groq para o modelo de linguagem
-GROQ_API_KEY=coloque_sua_chave_aqui
+# Chave da API OpenAI para o modelo de linguagem
+OPENAI_API_KEY=coloque_sua_chave_aqui
 ```
 
 ## Executando a aplicação

@@ -11,7 +11,7 @@ from src.tools import (
 )
 
 # Importa o agente do projeto
-from src.biblia_agent import BibliaAgent, APIRateLimitError
+from src.biblia_agent import BibliaAgent
 
 # Configuração de página (precisa vir antes de qualquer output)
 st.set_page_config(
@@ -132,12 +132,6 @@ with tabs[0]:
                 answer = agent.ask(question)
                 st.markdown("**Resposta:**")
                 st.write(answer)
-            except APIRateLimitError as e:
-                # Mensagem específica para rate limit com indicação de quando tentar novamente
-                if getattr(e, "retry_text", None):
-                    st.error(f"Limite de chamadas da API atingido. Tente novamente em {e.retry_text}.")
-                else:
-                    st.error("Limite de chamadas da API atingido. Tente novamente em breve.")
             except Exception as e:
                 st.error(f"Erro ao consultar o agente: {e}")
 
@@ -191,4 +185,4 @@ with tabs[3]:
 
 # ------------------------- Rodapé ------------------------- #
 st.divider()
-st.caption("Modelo de linguagem: llama-3.3-70b-versatile")
+st.caption("Modelo de linguagem: gpt-4o-mini")
