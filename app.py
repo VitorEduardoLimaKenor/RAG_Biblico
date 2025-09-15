@@ -115,7 +115,7 @@ if agent is None:
 # ------------------------- Abas ------------------------- #
 tabs = st.tabs([
     "Agente Bíblico",
-    "Leitura por capítulo",
+    "Leitura por capítulo (resumo)",
     "Tool de busca no Dicionário Easton",
     "Tool de busca semântica na Bíblia"
 ])
@@ -137,23 +137,21 @@ with tabs[0]:
 
 # ------------------------- Aba 2: Leitura por Capítulo ------------------------- #
 with tabs[1]:
-    st.subheader("Leitura direta por capítulo")
-    livro = st.text_input("Livro (nome ou abreviação)", placeholder="Ex.: Gênesis")
-    cap = st.number_input("Capítulo", min_value=1, value=1, step=1)
-    ler_clicked = st.button("Ler capítulo", use_container_width=True)
+    st.subheader("Leitura por capítulo — resumo gerado por LLM")
+    entrada = st.text_input("Livro:Capítulo", placeholder="Ex.: Gênesis:1")
+    ler_clicked = st.button("Gerar resumo", use_container_width=True)
 
     if ler_clicked:
-        with st.spinner("Carregando capítulo..."):
+        with st.spinner("Gerando resumo do capítulo..."):
             try:
-                result = buscar_na_biblia_json(f"{livro}:{cap}")
-                if not result:
-                    st.warning("Não encontrado. Verifique o nome do livro e o capítulo.")
+                result = buscar_na_biblia_json(entrada)
+                if not result or not isinstance(result, dict) or "resumo" not in result:
+                    st.warning("Não encontrado ou formato inválido. Verifique a entrada no formato 'Livro:Capítulo'.")
                 else:
                     st.markdown(f"### {result['referencia']}")
-                    for v in result["versiculos"]:
-                        st.markdown(f"**{v['versiculo']}**. {v['texto']}")
+                    st.write(result["resumo"]) 
             except Exception as e:
-                st.error(f"Erro ao ler capítulo: {e}")
+                st.error(f"Erro ao gerar resumo: {e}")
 
 # ------------------------- Aba 3: Dicionário Easton ------------------------- #
 with tabs[2]:

@@ -98,8 +98,8 @@ Abra o link exibido no terminal (geralmente `http://localhost:8501`).
 - Agente Bíblico
   - Escreva uma pergunta em linguagem natural (ex.: "O que a Bíblia ensina sobre perdão?") e clique em "Perguntar". O agente utiliza RAG para compor uma resposta contextualizada.
 
-- Leitura por capítulo
-  - Informe o livro (nome ou abreviação) e o capítulo (ex.: "Gênesis", cap. 1) e clique em "Ler capítulo" para exibir todos os versículos.
+- Leitura por capítulo (resumo automático)
+  - Informe o livro e o capítulo no formato "Livro:Capítulo" (ex.: "Gênesis:1") e clique em "Ler capítulo" para gerar um resumo do capítulo com apoio de LLM.
 
 - Tool de busca no Dicionário Easton
   - Forneça um termo (ex.: "Jesus", "fariseus") para obter a explicação histórica/cultural do Dicionário de Easton.
@@ -118,11 +118,10 @@ Ao iniciar, a aplicação exibe uma tela de carregamento com logs em tempo real 
 - Streamlit (interface web)
 - ChromaDB (busca semântica/vetorial)
 - Sentence-Transformers (embeddings)
-- Groq (LLM) — modelo: `llama-3.3-70b-versatile`
+- OpenAI (LLM) — modelo: `gpt-4o-mini`
 - Fontes de dados em `data/`:
-  - `bibliaAveMaria.json`
+  - `biblia_ave_maria.json`
   - `dicionario_easton.json`
-  - `naves_topical.json`
 
 ## Licença
 

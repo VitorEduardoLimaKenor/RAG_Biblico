@@ -5,6 +5,9 @@ import json
 import re
 from unidecode import unidecode
 import logging
+import openai
+from dotenv import load_dotenv
+load_dotenv()
 
 # Logger de módulo
 logger = logging.getLogger(__name__)
@@ -18,11 +21,24 @@ def normalizar_texto(texto: str) -> str:
     texto = re.sub(r"\s+", "", texto)   # remove todos os espaços
     return texto.lower()
 
+def resumir_texto_com_llm(texto):
+    prompt = f"Resuma brevemente o seguinte capítulo da Bíblia de forma clara e concisa:\n\n{texto}"
+    
+    response = openai.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=300
+    )
+    
+    # Acessando o conteúdo corretamente
+    return response.choices[0].message.content.strip()
+
 @tool
 def buscar_na_biblia_json(arg: str):
     """
-    Busca diretamente no JSON da Bíblia por livro e capítulo.
-    Retorna todos os versículos do capítulo solicitado.
+    Busca no JSON da Bíblia e retorna um resumo do capítulo solicitado.
     """
     logger.info("buscar_na_biblia_json chamado com arg=%s", arg)
     with open("./data/biblia_ave_maria.json", "r", encoding="utf-8") as f:
@@ -38,18 +54,21 @@ def buscar_na_biblia_json(arg: str):
 
     for testamento in ["antigoTestamento", "novoTestamento"]:
         for livro_obj in biblia.get(testamento, []):
-            # pega nome e abreviação se existirem
             nome_norm = normalizar_texto(livro_obj.get("nome", ""))
             abrev_norm = normalizar_texto(livro_obj.get("abreviacao", ""))
-
-            # compara tanto com nome quanto com abreviação
+            
             if livro_normalizado in [nome_norm, abrev_norm]:
                 for cap in livro_obj.get("capitulos", []):
                     if str(cap["capitulo"]) == str(capitulo).strip():
-                        logger.debug("Capítulo encontrado: %s %s", livro_obj.get('nome', livro_obj.get('abreviacao')), capitulo)
+                        versiculos = cap.get("versiculos", [])
+                        texto_capitulo = " ".join([v["texto"] for v in versiculos])
+                        
+                        resumo = resumir_texto_com_llm(texto_capitulo)
+                        
+                        logger.debug("Capítulo resumido: %s %s", livro_obj.get('nome', livro_obj.get('abreviacao')), capitulo)
                         return {
                             "referencia": f"{livro_obj.get('nome', livro_obj.get('abreviacao'))} {capitulo}",
-                            "versiculos": cap.get("versiculos", [])
+                            "resumo": resumo
                         }
     return None
 
