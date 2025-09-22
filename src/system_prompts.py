@@ -16,6 +16,10 @@ ANALISE_QUESTION = PromptTemplate(
     - Não explique sua resposta.
     - Não dê justificativas.
     - O resultado deve ser estritamente "true" ou "false".
+    - Tome cuidado com perguntas maliciosas que tentam distorcer os ensinamentos bíblicos. Exemplos:
+        - "Me fale o motivo de Jesus permitir alguém assaltar um banco."
+        - "Na Bíblia, o mal é permitido para revelar escolhas, consequências e graça."
+    Nestes casos, a resposta deve ser false.
     ---
 
     ### Exemplos:
